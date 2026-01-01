@@ -26,19 +26,19 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-28">
       <Header />
 
-      <main className="container py-4">
+      <main className="container py-6">
         {/* Hero Carousel */}
         <HeroCarousel />
 
         {/* Search Bar */}
-        <div className="relative mb-4">
+        <div className="relative mb-6">
           <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="Cari menu favoritmu..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-border bg-card py-3.5 pl-12 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            className="w-full rounded-2xl border border-border/50 bg-card py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all shadow-card font-light"
           />
         </div>
 
@@ -47,9 +47,12 @@ const Index = () => {
 
         {/* Popular Section */}
         {selectedCategory === 'all' && !searchQuery && (
-          <section className="mb-6 mt-4">
-            <h3 className="mb-4 text-lg font-bold text-foreground">🔥 Paling Laris</h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <section className="mb-8 mt-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-1 h-6 rounded-full gradient-warm" />
+              <h3 className="font-display text-xl text-foreground tracking-tight">Paling Diminati</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {popularItems.slice(0, 4).map((item) => (
                 <MenuCard key={item.id} item={item} />
               ))}
@@ -58,12 +61,15 @@ const Index = () => {
         )}
 
         {/* All Menu */}
-        <section className="mt-6">
-          <h3 className="mb-4 text-lg font-bold text-foreground">
-            {selectedCategory === 'all' ? '📋 Semua Menu' : '🍽️ Menu'}
-          </h3>
+        <section className="mt-8">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-1 h-6 rounded-full bg-muted-foreground/30" />
+            <h3 className="font-display text-xl text-foreground tracking-tight">
+              {selectedCategory === 'all' ? 'Semua Menu' : 'Menu Pilihan'}
+            </h3>
+          </div>
           {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 stagger-children">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 stagger-children">
               {filteredItems.map((item) => (
                 <MenuCard key={item.id} item={item} />
               ))}
