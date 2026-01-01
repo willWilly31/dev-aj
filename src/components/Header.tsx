@@ -15,18 +15,22 @@ export function Header() {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/50 bg-background/80 backdrop-blur-lg">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-30 border-b border-border/30 bg-background/90 backdrop-blur-xl">
+      <div className="container flex h-18 items-center justify-between py-3">
         <div className="flex flex-col">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl">🍜</span>
-            <h1 className="text-xl font-extrabold text-foreground">
-              Warung<span className="text-primary">Medan</span>
-            </h1>
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full gradient-warm flex items-center justify-center shadow-glow">
+              <span className="text-lg">🍜</span>
+            </div>
+            <div>
+              <h1 className="font-display text-xl tracking-tight text-foreground">
+                Warung<span className="text-gold">Medan</span>
+              </h1>
+            </div>
           </Link>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 ml-12">
             <MapPin className="h-3 w-3" />
-            <span>Medan, Sumatera Utara</span>
+            <span className="font-medium tracking-wide uppercase">Sumatera Utara</span>
           </div>
         </div>
 
@@ -56,11 +60,11 @@ export function Header() {
 
           <Link
             to="/cart"
-            className="relative flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-all hover:shadow-glow active:scale-95"
+            className="relative flex h-12 w-12 items-center justify-center rounded-full gradient-warm text-primary-foreground shadow-md transition-all hover:shadow-glow active:scale-95 border border-primary/20"
           >
             <ShoppingCart className="h-5 w-5" />
             {totalItems > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground shadow-sm">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground shadow-md ring-2 ring-background">
                 {totalItems > 9 ? '9+' : totalItems}
               </span>
             )}
