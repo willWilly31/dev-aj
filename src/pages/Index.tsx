@@ -3,9 +3,9 @@ import { Header } from '@/components/Header';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { MenuCard } from '@/components/MenuCard';
 import { CartFloatingButton } from '@/components/CartFloatingButton';
+import { HeroCarousel } from '@/components/HeroCarousel';
 import { menuItems } from '@/lib/menuData';
 import { Search } from 'lucide-react';
-import heroCookingVideo from '@/assets/hero-cooking-video.mp4';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -27,32 +27,8 @@ const Index = () => {
       <Header />
 
       <main className="container py-4">
-        {/* Hero Section with Video Background */}
-        <section className="relative mb-6 rounded-2xl overflow-hidden">
-          {/* Video Background */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src={heroCookingVideo} type="video/mp4" />
-          </video>
-          
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-          
-          {/* Content */}
-          <div className="relative z-10 p-6 py-10">
-            <h2 className="text-2xl font-extrabold leading-tight text-balance text-white drop-shadow-lg">
-              Makanan Jalanan Medan 🔥
-            </h2>
-            <p className="mt-2 text-sm text-white/90 drop-shadow-md">
-              Pesan nasi goreng, mie ayam, dan kuliner khas Medan favoritmu!
-            </p>
-          </div>
-        </section>
+        {/* Hero Carousel */}
+        <HeroCarousel />
 
         {/* Search Bar */}
         <div className="relative mb-4">
