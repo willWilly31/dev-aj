@@ -30,8 +30,8 @@ export const HeroCarousel = () => {
         />
       ))}
       
-      {/* Overlay - 30% opacity */}
-      <div className="absolute inset-0 bg-black/30" />
+      {/* Overlay - 15% opacity */}
+      <div className="absolute inset-0 bg-black/15" />
       
       {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-center px-6 z-10">
