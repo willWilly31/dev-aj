@@ -1,4 +1,4 @@
-import { ShoppingCart, MapPin, User, LogOut } from 'lucide-react';
+import { ShoppingCart, MapPin, User, LogOut, QrCode } from 'lucide-react';
 import { useCartStore } from '@/lib/cartStore';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,6 +45,9 @@ export function Header() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   <Link to="/orders">Pesanan Saya</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/qrcode"><QrCode className="mr-2 h-4 w-4" />QR Code Menu</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut}>
                   <LogOut className="mr-2 h-4 w-4" />
