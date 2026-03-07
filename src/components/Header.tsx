@@ -1,4 +1,4 @@
-import { ShoppingCart, MapPin, User, LogOut, QrCode } from 'lucide-react';
+import { ShoppingCart, MapPin, User, LogOut, QrCode, LayoutDashboard } from 'lucide-react';
 import { useCartStore } from '@/lib/cartStore';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,7 +12,7 @@ import {
 
 export function Header() {
   const totalItems = useCartStore((state) => state.getTotalItems());
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/30 bg-background/90 backdrop-blur-xl">
@@ -49,6 +49,11 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link to="/qrcode"><QrCode className="mr-2 h-4 w-4" />QR Code Menu</Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin"><LayoutDashboard className="mr-2 h-4 w-4" />Admin Dashboard</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={signOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Keluar

@@ -9,6 +9,7 @@ import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
 import Orders from "./pages/Orders";
 import QRCode from "./pages/QRCode";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/qrcode" element={<QRCode />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
