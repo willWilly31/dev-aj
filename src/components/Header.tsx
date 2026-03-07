@@ -1,4 +1,4 @@
-import { ShoppingCart, MapPin, User, LogOut, QrCode } from 'lucide-react';
+import { ShoppingCart, MapPin, User, LogOut, QrCode, LayoutDashboard } from 'lucide-react';
 import { useCartStore } from '@/lib/cartStore';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
