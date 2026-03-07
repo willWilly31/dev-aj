@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { MenuCard } from '@/components/MenuCard';
+import { MenuGridSkeleton } from '@/components/MenuCardSkeleton';
 import { CartFloatingButton } from '@/components/CartFloatingButton';
 import { HeroCarousel } from '@/components/HeroCarousel';
 import { menuItems } from '@/lib/menuData';
@@ -10,6 +11,12 @@ import { Search } from 'lucide-react';
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
@@ -52,11 +59,15 @@ const Index = () => {
               <div className="w-1 h-6 rounded-full gradient-warm" />
               <h3 className="font-display text-xl text-foreground tracking-tight">Paling Diminati</h3>
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {popularItems.slice(0, 4).map((item) => (
-                <MenuCard key={item.id} item={item} />
-              ))}
-            </div>
+            {loading ? (
+              <MenuGridSkeleton count={4} />
+            ) : (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {popularItems.slice(0, 4).map((item) => (
+                  <MenuCard key={item.id} item={item} />
+                ))}
+              </div>
+            )}
           </section>
         )}
 
@@ -68,7 +79,9 @@ const Index = () => {
               {selectedCategory === 'all' ? 'Semua Menu' : 'Menu Pilihan'}
             </h3>
           </div>
-          {filteredItems.length > 0 ? (
+          {loading ? (
+            <MenuGridSkeleton count={8} />
+          ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 stagger-children">
               {filteredItems.map((item) => (
                 <MenuCard key={item.id} item={item} />
