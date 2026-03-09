@@ -20,17 +20,17 @@ export function Header() {
         <div className="flex flex-col">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full gradient-warm flex items-center justify-center shadow-glow">
-              <span className="text-lg">🍜</span>
+              <span className="text-lg">☕</span>
             </div>
             <div>
               <h1 className="font-display text-xl tracking-tight text-foreground">
-                Warung<span className="text-gold">Medan</span>
+                Warkop<span className="text-gold">AJ</span>
               </h1>
             </div>
           </Link>
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 ml-12">
             <MapPin className="h-3 w-3" />
-            <span className="font-medium tracking-wide uppercase">Sumatera Utara</span>
+            <span className="font-medium tracking-wide uppercase">Medan, Sumatera Utara</span>
           </div>
         </div>
 
