@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import heroRural1 from '@/assets/hero-rural-cooking-1.jpg';
-import heroRural2 from '@/assets/hero-rural-cooking-2.jpg';
-import heroRural3 from '@/assets/hero-rural-cooking-3.jpg';
+import heroWarkop1 from '@/assets/hero-warkop-1.jpg';
+import heroWarkop2 from '@/assets/hero-warkop-2.jpg';
+import heroWarkop3 from '@/assets/hero-warkop-3.jpg';
 
-const heroImages = [heroRural1, heroRural2, heroRural3];
+const heroImages = [heroWarkop1, heroWarkop2, heroWarkop3];
 
 export const HeroCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,7 +17,6 @@ export const HeroCarousel = () => {
 
   return (
     <section className="relative mb-8 rounded-3xl overflow-hidden h-52 sm:h-64 md:h-72 shadow-lg border border-border/20">
-      {/* Image Carousel */}
       {heroImages.map((src, index) => (
         <img
           key={index}
@@ -30,25 +29,22 @@ export const HeroCarousel = () => {
         />
       ))}
       
-      {/* Elegant gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       
-      {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end px-6 pb-6 z-10">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.2em] text-white/70 font-medium">
-            Authentic Street Food
+            Kopi · Makanan · Nongkrong
           </p>
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight text-balance text-white">
-            Cita Rasa Asli <span className="text-gold">Medan</span>
+            Warkop <span className="text-gold">AJ</span>
           </h2>
           <p className="text-sm sm:text-base text-white/80 max-w-md font-light">
-            Nikmati kuliner autentik dengan resep turun-temurun
+            Ngopi santai dengan cita rasa street food Medan
           </p>
         </div>
       </div>
 
-      {/* Premium Carousel Indicators */}
       <div className="absolute bottom-4 right-6 flex gap-1.5 z-10">
         {heroImages.map((_, index) => (
           <button
