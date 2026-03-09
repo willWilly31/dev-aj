@@ -54,11 +54,11 @@ const QRCodePage = () => {
 
         ctx.fillStyle = '#888888';
         ctx.font = '24px sans-serif';
-        ctx.fillText('WarungMedan', 512, 1090);
+        ctx.fillText('WarkopAJ', 512, 1090);
 
         // Download
         const link = document.createElement('a');
-        link.download = 'warungmedan-qrcode.png';
+        link.download = 'warkopaj-qrcode.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
         toast.success('QR Code berhasil diunduh!');

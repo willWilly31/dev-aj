@@ -107,7 +107,7 @@ const Auth = () => {
         <Card className="border-border/50 shadow-elegant">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mb-4 shadow-glow">
-              <span className="text-3xl">🍜</span>
+              <span className="text-3xl">☕</span>
             </div>
             <CardTitle className="text-2xl font-display text-foreground">
               {isLogin ? 'Masuk' : 'Daftar'}

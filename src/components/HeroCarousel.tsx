@@ -37,13 +37,13 @@ export const HeroCarousel = () => {
       <div className="absolute inset-0 flex flex-col justify-end px-6 pb-6 z-10">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.2em] text-white/70 font-medium">
-            Ngopi Santai, Rasa Istimewa
+            Authentic Street Food
           </p>
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight text-balance text-white">
-            Warkop <span className="text-gold">AJ</span>
+            Cita Rasa Asli <span className="text-gold">Medan</span>
           </h2>
           <p className="text-sm sm:text-base text-white/80 max-w-md font-light">
-            Kopi, teh, dan makanan khas warkop Medan
+            Nikmati kuliner autentik dengan resep turun-temurun
           </p>
         </div>
       </div>

@@ -74,7 +74,7 @@ const Cart = () => {
       .map((item) => `• ${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`)
       .join('\n');
 
-    const message = `🍜 *Pesanan Baru dari Warung Medan*\n\n${orderDetails}\n\n*Total: ${formatPrice(totalPrice)}*\n\nMohon konfirmasi pesanan saya. Terima kasih! 🙏`;
+    const message = `☕ *Pesanan Baru dari Warkop AJ*\n\n${orderDetails}\n\n*Total: ${formatPrice(totalPrice)}*\n\nMohon konfirmasi pesanan saya. Terima kasih! 🙏`;
 
     const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
