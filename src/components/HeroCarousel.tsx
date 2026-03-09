@@ -22,7 +22,7 @@ export const HeroCarousel = () => {
         <img
           key={index}
           src={src}
-          alt={`Masakan tradisional ${index + 1}`}
+          alt={`Suasana Warkop AJ ${index + 1}`}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
             index === currentIndex ? 'opacity-100' : 'opacity-0'
           }`}
@@ -37,13 +37,13 @@ export const HeroCarousel = () => {
       <div className="absolute inset-0 flex flex-col justify-end px-6 pb-6 z-10">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.2em] text-white/70 font-medium">
-            Authentic Cuisine
+            Ngopi Santai, Rasa Istimewa
           </p>
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight text-balance text-white">
-            Cita Rasa Asli <span className="text-gold">Medan</span>
+            Warkop <span className="text-gold">AJ</span>
           </h2>
           <p className="text-sm sm:text-base text-white/80 max-w-md font-light">
-            Nikmati kuliner autentik dengan resep turun-temurun
+            Kopi, teh, dan makanan khas warkop Medan
           </p>
         </div>
       </div>
