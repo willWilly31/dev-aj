@@ -4,22 +4,37 @@ import { MenuItem } from './menuData';
 
 export interface CartItem extends MenuItem {
   quantity: number;
+  note?: string | null;
 }
+
+export type OrderType = 'dine' | 'takeaway';
+export type PaymentMethod = 'cash' | 'transfer' | 'qris';
 
 interface CartStore {
   items: CartItem[];
+  orderType: OrderType;
+  paymentMethod: PaymentMethod;
   addItem: (item: MenuItem) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
+  updateNote: (itemId: string, note: string | null) => void;
+  setOrderType: (type: OrderType) => void;
+  setPaymentMethod: (method: PaymentMethod) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  getTax: () => number;
+  getGrandTotal: () => number;
 }
+
+const TAX_RATE = 0.11;
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      orderType: 'dine',
+      paymentMethod: 'cash',
       
       addItem: (item: MenuItem) => {
         set((state) => {
@@ -33,7 +48,7 @@ export const useCartStore = create<CartStore>()(
               ),
             };
           }
-          return { items: [...state.items, { ...item, quantity: 1 }] };
+          return { items: [...state.items, { ...item, quantity: 1, note: null }] };
         });
       },
       
@@ -54,8 +69,19 @@ export const useCartStore = create<CartStore>()(
           ),
         }));
       },
+
+      updateNote: (itemId: string, note: string | null) => {
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.id === itemId ? { ...i, note } : i
+          ),
+        }));
+      },
+
+      setOrderType: (type: OrderType) => set({ orderType: type }),
+      setPaymentMethod: (method: PaymentMethod) => set({ paymentMethod: method }),
       
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], paymentMethod: 'cash' }),
       
       getTotalItems: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0);
@@ -67,9 +93,17 @@ export const useCartStore = create<CartStore>()(
           0
         );
       },
+
+      getTax: () => {
+        return Math.round(get().getTotalPrice() * TAX_RATE);
+      },
+
+      getGrandTotal: () => {
+        return get().getTotalPrice() + get().getTax();
+      },
     }),
     {
-      name: 'warung-medan-cart',
+      name: 'warkopaj-cart',
     }
   )
 );

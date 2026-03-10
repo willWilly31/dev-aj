@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WARKOP AJ POS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{font-family:'Poppins',sans-serif;background:#f3f4f6;}
+  .brand{font-family:'Bebas Neue',sans-serif;letter-spacing:4px;}
+  .hidden{display:none!important;}
+  *{-webkit-tap-highlight-color:transparent;}
+  .slide{animation:sl .3s ease;}
+  @keyframes sl{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center bg-black">
+  <div class="bg-white w-80 p-7 rounded-2xl shadow-2xl">
+    <div class="text-center mb-7">
+      <div class="brand text-5xl text-gray-900">WARKOP</div>
+      <div class="brand text-3xl text-gray-400 -mt-2">AJ</div>
+      <div class="text-xs text-gray-400 mt-1 tracking-widest">POINT OF SALE</div>
+    </div>
+    <input id="un" class="w-full px-4 py-3 border rounded-xl mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" placeholder="Username">
+    <input id="pw" type="password" class="w-full px-4 py-3 border rounded-xl mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" placeholder="Password">
+    <button onclick="login()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold active:scale-95 transition-all">Masuk</button>
+    <div id="loginErr" class="hidden text-center text-red-500 text-xs mt-3">Username atau password salah</div>
+    <div class="mt-5 pt-4 border-t">
+      <div class="text-xs text-gray-400 text-center mb-2">Demo accounts · pass: 123</div>
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="fillLogin('kasir1','123')" class="py-2 bg-gray-100 rounded-lg text-xs font-medium">kasir1</button>
+        <button onclick="fillLogin('barista1','123')" class="py-2 bg-gray-100 rounded-lg text-xs font-medium">barista1</button>
+        <button onclick="fillLogin('owner1','123')" class="py-2 bg-gray-100 rounded-lg text-xs font-medium">owner1</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KASIR -->
+<div id="kasirScreen" class="hidden min-h-screen">
+  <div class="bg-gray-900 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-10">
+    <div>
+      <div class="brand text-xl">WARKOP AJ</div>
+      <div id="kasirInfo" class="text-xs text-gray-400"></div>
+    </div>
+    <div class="flex gap-2">
+      <button id="printerBtn" onclick="connectPrinter()" class="px-3 py-1.5 text-xs border border-gray-600 text-gray-300 rounded-lg">🖨 Printer</button>
+      <button onclick="logout()" class="px-3 py-1.5 text-xs border border-red-900 text-red-400 rounded-lg">Keluar</button>
+    </div>
+  </div>
+
+  <!-- Order Type -->
+  <div class="bg-white border-b px-4 py-2 flex gap-2">
+    <button id="otDine" onclick="setType('dine')" class="px-4 py-2 text-xs rounded-xl bg-gray-900 text-white font-bold">Dine In</button>
+    <button id="otTA" onclick="setType('ta')" class="px-4 py-2 text-xs rounded-xl border border-gray-300 text-gray-600">Take Away</button>
+  </div>
+
+  <!-- Search -->
+  <div class="px-4 pt-3 pb-1">
+    <input id="searchInp" oninput="doSearch()" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" placeholder="🔍 Cari menu...">
+  </div>
+
+  <!-- Category -->
+  <div id="catRow" class="px-4 py-2 flex gap-2 overflow-x-auto"></div>
+
+  <!-- Menu Grid -->
+  <div id="menuGrid" class="px-4 mt-1 grid grid-cols-2 gap-3 pb-32"></div>
+
+  <!-- Cart FAB -->
+  <button id="cartFAB" onclick="openCart()" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-20">
+    🛒 <span id="cartQty">0</span> item · Rp <span id="cartTotalEl">0</span>
+  </button>
+</div>
+
+<!-- CART PANEL -->
+<div id="cartPanel" class="hidden fixed inset-0 bg-black/60 z-40">
+  <div class="absolute inset-0" onclick="closeCart()"></div>
+  <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-screen overflow-y-auto slide">
+    <div class="flex justify-between items-center px-5 py-4 border-b sticky top-0 bg-white z-10">
+      <div class="font-bold text-lg">Keranjang</div>
+      <button onclick="closeCart()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">✕</button>
+    </div>
+    <div id="cartList" class="px-5 py-3 space-y-3"></div>
+    <div class="px-5 py-3">
+      <div class="bg-gray-50 rounded-2xl p-4 space-y-1.5">
+        <div class="flex justify-between text-sm text-gray-500"><span>Subtotal</span><span id="cartSub">Rp 0</span></div>
+        <div class="flex justify-between text-sm text-gray-500"><span>PPN 11%</span><span id="cartTax">Rp 0</span></div>
+        <div class="flex justify-between font-bold text-xl pt-2 border-t"><span>Total</span><span id="cartGrand">Rp 0</span></div>
+      </div>
+    </div>
+    <div class="px-5 pb-8">
+      <button onclick="openPay()" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-base">Lanjut Pembayaran →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div id="noteModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+  <div class="bg-white w-full max-w-sm p-5 rounded-2xl">
+    <div class="font-bold mb-3">📝 Catatan Item</div>
+    <textarea id="noteInp" class="w-full border rounded-xl p-3 h-24 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 mb-3" placeholder="Contoh: tanpa gula, es sedikit..."></textarea>
+    <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+      <button onclick="quickNote('Tanpa Gula')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Tanpa Gula</button>
+      <button onclick="quickNote('Gula Sedikit')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Gula Sedikit</button>
+      <button onclick="quickNote('Es Sedikit')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Es Sedikit</button>
+      <button onclick="quickNote('Es Banyak')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Es Banyak</button>
+      <button onclick="quickNote('Panas')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Panas</button>
+      <button onclick="quickNote('Kurang Manis')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Kurang Manis</button>
+      <button onclick="quickNote('Extra Es')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Extra Es</button>
+      <button onclick="quickNote('Pedas Sedang')" class="bg-gray-100 py-2 rounded-xl active:bg-gray-200">Pedas Sedang</button>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeNote()" class="flex-1 py-2.5 bg-gray-100 rounded-xl font-semibold">Batal</button>
+      <button onclick="saveNote()" class="flex-1 py-2.5 bg-gray-900 text-white rounded-xl font-semibold">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div id="payModal" class="hidden fixed inset-0 bg-black/50 flex items-end z-50">
+  <div class="bg-white w-full p-5 rounded-t-3xl slide">
+    <div class="flex justify-between items-center mb-5">
+      <div class="font-bold text-lg">Pembayaran</div>
+      <button onclick="closePay()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm">✕</button>
+    </div>
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <button onclick="setPayMethod('cash')" id="pmCash" class="p-3 rounded-2xl border-2 border-gray-900 bg-gray-100 text-center">
+        <div class="text-2xl">💵</div><div class="text-xs font-bold mt-1">Cash</div>
+      </button>
+      <button onclick="setPayMethod('transfer')" id="pmTransfer" class="p-3 rounded-2xl border-2 border-gray-200 text-center">
+        <div class="text-2xl">🏦</div><div class="text-xs text-gray-400 mt-1">Transfer</div>
+      </button>
+      <button onclick="setPayMethod('qris')" id="pmQRIS" class="p-3 rounded-2xl border-2 border-gray-200 text-center">
+        <div class="text-2xl">📱</div><div class="text-xs text-gray-400 mt-1">QRIS</div>
+      </button>
+    </div>
+    <div id="cashArea">
+      <div class="text-sm text-gray-500 mb-2">Uang Diterima</div>
+      <input id="cashInp" type="number" oninput="calcKembali()" class="w-full bg-gray-100 px-4 py-3 rounded-xl text-2xl font-bold text-right focus:outline-none mb-3" placeholder="0">
+      <div id="quickCash" class="grid grid-cols-4 gap-2 mb-3"></div>
+      <div id="kembaliRow" class="hidden bg-green-50 rounded-xl px-4 py-3 flex justify-between mb-3">
+        <span class="text-green-700 font-semibold">Kembalian</span>
+        <span id="kembaliVal" class="text-green-700 font-bold">Rp 0</span>
+      </div>
+    </div>
+    <div class="bg-gray-900 text-white p-4 rounded-2xl flex justify-between items-center mb-4">
+      <span class="text-gray-400">Total</span>
+      <span id="payGrand" class="text-2xl font-bold">Rp 0</span>
+    </div>
+    <button onclick="finalPay()" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-base active:scale-95 transition-all">Konfirmasi Pembayaran ✓</button>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+  <div class="bg-white w-full max-w-xs p-7 rounded-3xl text-center">
+    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✅</div>
+    <div class="font-bold text-xl mb-2">Pembayaran Berhasil!</div>
+    <div id="succInfo" class="text-gray-500 text-sm mb-5 leading-relaxed"></div>
+    <button onclick="closeSuccess()" class="w-full py-3 bg-gray-900 text-white rounded-2xl font-bold">Pesanan Baru</button>
+  </div>
+</div>
+
+<!-- KITCHEN -->
+<div id="kitchenScreen" class="hidden min-h-screen bg-gray-900 text-white">
+  <div class="bg-black px-5 py-4 flex justify-between items-center sticky top-0 z-10">
+    <div class="brand text-2xl">WARKOP AJ · DAPUR</div>
+    <button onclick="logout()" class="text-xs border border-red-900 px-3 py-1 rounded text-red-400">Keluar</button>
+  </div>
+  <div class="p-4">
+    <div id="kitchenEmpty" class="text-center py-20 text-gray-600">
+      <div class="text-5xl mb-3">✅</div>
+      <div class="text-lg">Semua pesanan selesai</div>
+    </div>
+    <div id="kitchenOrders" class="grid gap-4"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardScreen" class="hidden min-h-screen bg-gray-50">
+  <div class="bg-gray-900 text-white px-5 py-4 flex justify-between items-center sticky top-0">
+    <div class="brand text-2xl">WARKOP AJ · OWNER</div>
+    <button onclick="logout()" class="text-xs border border-red-900 px-3 py-1 rounded text-red-400">Keluar</button>
+  </div>
+  <div class="p-4 space-y-4">
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-gray-400 mb-1">Omzet Hari Ini</div>
+        <div class="font-bold text-2xl">Rp <span id="dOmzet">0</span></div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-gray-400 mb-1">Transaksi</div>
+        <div class="font-bold text-2xl" id="dTrx">0</div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-gray-400 mb-1">Rata-rata</div>
+        <div class="font-bold text-2xl text-blue-600">Rp <span id="dAvg">0</span></div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-gray-400 mb-1">Item Terjual</div>
+        <div class="font-bold text-2xl text-purple-600" id="dItems">0</div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm">
+      <div class="font-semibold mb-3">🏆 Produk Terlaris</div>
+      <div id="dTop" class="text-sm text-gray-400">Belum ada data</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm">
+      <div class="font-semibold mb-3">📋 Riwayat Transaksi</div>
+      <div id="dHist" class="text-sm text-gray-400">Belum ada transaksi</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================== CONFIG ==================== */
+const CFG = {
+  name   : "WARKOP AJ",
+  addr1  : "Jl. Contoh No.123",
+  addr2  : "Medan Area",
+  city   : "Kota Medan, Sumut",
+  ig     : "IG: @warkopaj",
+  wa     : "WA: 0812-3456-7890",
+  slogan : "Ngopi Santai, Rasa Istimewa!",
+  logo   : "",
+  est    : 10,
+  tax    : 0.11
+};
+
+/* ==================== USERS ==================== */
+const USERS = [
+  {name:"kasir1",  pass:"123", role:"kasir",   full:"Kasir"},
+  {name:"barista1",pass:"123", role:"barista",  full:"Barista"},
+  {name:"owner1",  pass:"123", role:"owner",    full:"Owner"}
+];
+
+/* ==================== MENU (synced with app) ==================== */
+const MENU = [
+  // === KOPI ===
+  {id:1,  name:"Kopi Hitam",         price:8000,  cat:"kopi"},
+  {id:2,  name:"Kopi Susu",          price:10000, cat:"kopi"},
+  {id:3,  name:"Kopi Gula Aren",     price:12000, cat:"kopi"},
+  {id:4,  name:"Es Kopi Susu",       price:14000, cat:"kopi"},
+  {id:5,  name:"Kopi Vietnam",       price:13000, cat:"kopi"},
+
+  // === TEH ===
+  {id:6,  name:"Teh Tarik",          price:7000,  cat:"teh"},
+  {id:7,  name:"Teh Manis",          price:5000,  cat:"teh"},
+  {id:8,  name:"Teh Lemon",          price:8000,  cat:"teh"},
+
+  // === NASI ===
+  {id:9,  name:"Nasi Goreng",        price:15000, cat:"nasi"},
+  {id:10, name:"Nasi Goreng Kampung",price:18000, cat:"nasi"},
+
+  // === MIE AYAM ===
+  {id:11, name:"Mie Ayam",           price:17000, cat:"mie-ayam"},
+  {id:12, name:"Mie Ayam Jamur",     price:18000, cat:"mie-ayam"},
+  {id:13, name:"Mie Ayam Jamur Bakso",price:20000,cat:"mie-ayam"},
+  {id:14, name:"Mie Ayam Bakso",     price:18000, cat:"mie-ayam"},
+
+  // === INDOMIE ===
+  {id:15, name:"Indomie Kuah",       price:15000, cat:"indomie"},
+  {id:16, name:"Indomie Goreng",     price:15000, cat:"indomie"},
+
+  // === IFUMIE ===
+  {id:17, name:"Ifumie Ayam Jamur",  price:18000, cat:"ifumie"},
+  {id:18, name:"Ifumie Ayam Jamur Bakso",price:20000,cat:"ifumie"},
+  {id:19, name:"Ifumie Goreng",      price:15000, cat:"ifumie"},
+
+  // === MINUMAN ===
+  {id:20, name:"Air Mineral",        price:5000,  cat:"minuman"},
+  {id:21, name:"Jeruk Peras",        price:8000,  cat:"minuman"},
+
+  // === LAINNYA ===
+  {id:22, name:"Kwetiaw Goreng",     price:15000, cat:"lainnya"},
+  {id:23, name:"Bihun Goreng",       price:15000, cat:"lainnya"},
+  {id:24, name:"Roti Bakar",         price:12000, cat:"lainnya"},
+  {id:25, name:"Pisang Goreng",      price:8000,  cat:"lainnya"},
+];
+
+const CATS = [
+  {id:"semua",    label:"🍽 Semua"},
+  {id:"kopi",     label:"☕ Kopi"},
+  {id:"teh",      label:"🍵 Teh"},
+  {id:"nasi",     label:"🍚 Nasi"},
+  {id:"mie-ayam", label:"🍜 Mie Ayam"},
+  {id:"indomie",  label:"🍲 Indomie"},
+  {id:"ifumie",   label:"🥡 Ifumie"},
+  {id:"minuman",  label:"🥤 Minuman"},
+  {id:"lainnya",  label:"✨ Lainnya"}
+];
+
+/* ==================== STATE ==================== */
+let user       = null;
+let cart       = [];
+let noteIdx    = null;
+let btChar     = null;
+let payMethod  = "cash";
+let orderType  = "dine";
+let allOrders  = [];
+let salesMap   = {};
+let stats      = {omzet:0, trx:0, items:0};
+
+/* ==================== HELPERS ==================== */
+const $ = id => document.getElementById(id);
+const rp = n => Number(n).toLocaleString("id-ID");
+const fmtTime = d => new Date(d).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
+const fmtDate = d => new Date(d).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
+
+/* ==================== LOGIN ==================== */
+function fillLogin(u,p){ $("un").value=u; $("pw").value=p; }
+
+function login(){
+  const u = $("un").value.trim();
+  const p = $("pw").value.trim();
+  const f = USERS.find(x=>x.name===u && x.pass===p);
+  if(!f){ $("loginErr").classList.remove("hidden"); return; }
+  user = f;
+  $("loginScreen").classList.add("hidden");
+  $("loginErr").classList.add("hidden");
+  if(f.role==="kasir")   initKasir();
+  if(f.role==="barista") initKitchen();
+  if(f.role==="owner")   initDashboard();
+}
+
+document.addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+function logout(){ location.reload(); }
+
+/* ==================== KASIR INIT ==================== */
+function initKasir(){
+  $("kasirScreen").classList.remove("hidden");
+  $("kasirInfo").textContent = user.full+" · "+new Date().toLocaleDateString("id-ID");
+  renderCats();
+  renderMenu(MENU);
+}
+
+/* ==================== CATEGORIES ==================== */
+function renderCats(){
+  $("catRow").innerHTML = CATS.map(c=>`
+    <button onclick="pickCat('${c.id}')" id="cat${c.id}"
+      class="flex-shrink-0 px-4 py-2 rounded-full text-xs bg-white border border-gray-200 font-medium">
+      ${c.label}
+    </button>
+  `).join("");
+  $("catsemua").className="flex-shrink-0 px-4 py-2 rounded-full text-xs bg-gray-900 text-white font-medium";
+}
+
+function pickCat(c){
+  document.querySelectorAll("[id^='cat']").forEach(b=>{
+    b.className="flex-shrink-0 px-4 py-2 rounded-full text-xs bg-white border border-gray-200 font-medium";
+  });
+  $("cat"+c).className="flex-shrink-0 px-4 py-2 rounded-full text-xs bg-gray-900 text-white font-medium";
+  renderMenu(c==="semua" ? MENU : MENU.filter(m=>m.cat===c));
+}
+
+/* ==================== SEARCH ==================== */
+function doSearch(){
+  const q = $("searchInp").value.toLowerCase();
+  renderMenu(MENU.filter(m=>m.name.toLowerCase().includes(q)));
+}
+
+/* ==================== MENU RENDER ==================== */
+function renderMenu(items){
+  $("menuGrid").innerHTML = items.map(m=>{
+    const inCart = cart.find(c=>c.id===m.id);
+    return `
+      <button onclick="addToCart(${m.id})"
+        class="bg-white rounded-2xl p-4 shadow-sm text-left border-2 ${inCart?"border-gray-900":"border-transparent"} active:scale-95 transition-transform relative">
+        ${inCart?`<div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-bold">${inCart.qty}</div>`:""}
+        <div class="font-semibold text-sm text-gray-800">${m.name}</div>
+        <div class="font-bold text-gray-900 mt-1">Rp ${rp(m.price)}</div>
+        <div class="text-xs text-gray-400 mt-0.5 capitalize">${m.cat}</div>
+      </button>
+    `;
+  }).join("");
+}
+
+/* ==================== CART ADD ==================== */
+function addToCart(id){
+  const item = MENU.find(m=>m.id===id);
+  const exist = cart.find(c=>c.id===id && !c.note);
+  if(exist) exist.qty++;
+  else cart.push({...item, qty:1, note:null});
+  updateFAB();
+  renderMenu(MENU.filter(m=>{
+    const q = $("searchInp").value.toLowerCase();
+    return q ? m.name.toLowerCase().includes(q) : true;
+  }));
+}
+
+/* ==================== FAB ==================== */
+function updateFAB(){
+  const qty   = cart.reduce((s,i)=>s+i.qty,0);
+  const total = cart.reduce((s,i)=>s+i.qty*i.price,0);
+  $("cartQty").textContent    = qty;
+  $("cartTotalEl").textContent = rp(total);
+  $("cartFAB").classList.toggle("hidden", cart.length===0);
+}
+
+/* ==================== CART PANEL ==================== */
+function openCart(){
+  renderCartList();
+  recalcCart();
+  $("cartPanel").classList.remove("hidden");
+}
+
+function closeCart(){
+  $("cartPanel").classList.add("hidden");
+}
+
+function renderCartList(){
+  if(!cart.length){
+    $("cartList").innerHTML="<div class='text-center py-10 text-gray-400'>Keranjang kosong</div>";
+    return;
+  }
+  $("cartList").innerHTML = cart.map((c,i)=>`
+    <div class="bg-gray-50 rounded-2xl p-3">
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1">
+          <div class="font-semibold text-sm">${c.name}</div>
+          ${c.note?`<div class="text-blue-600 text-xs mt-0.5">• ${c.note}</div>`:""}
+          <div class="font-bold text-sm mt-1">Rp ${rp(c.qty*c.price)}</div>
+          <button onclick="openNote(${i})" class="text-xs text-gray-400 underline mt-1">
+            ${c.note?"Edit catatan":"+ Tambah catatan"}
+          </button>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button onclick="chgQty(${i},-1)" class="w-8 h-8 bg-gray-200 rounded-full font-bold flex items-center justify-center">−</button>
+          <span class="w-5 text-center font-bold">${c.qty}</span>
+          <button onclick="chgQty(${i},1)" class="w-8 h-8 bg-gray-900 text-white rounded-full font-bold flex items-center justify-center">+</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function chgQty(i,n){
+  cart[i].qty+=n;
+  if(cart[i].qty<=0) cart.splice(i,1);
+  renderCartList();
+  recalcCart();
+  updateFAB();
+  if(!cart.length) closeCart();
+}
+
+function recalcCart(){
+  const sub   = cart.reduce((s,i)=>s+i.qty*i.price,0);
+  const tax   = Math.round(sub*CFG.tax);
+  const grand = sub+tax;
+  $("cartSub").textContent   = "Rp "+rp(sub);
+  $("cartTax").textContent   = "Rp "+rp(tax);
+  $("cartGrand").textContent = "Rp "+rp(grand);
+}
+
+function getGrand(){
+  const sub = cart.reduce((s,i)=>s+i.qty*i.price,0);
+  return sub + Math.round(sub*CFG.tax);
+}
+
+function getSub(){
+  return cart.reduce((s,i)=>s+i.qty*i.price,0);
+}
+
+function getTax(){
+  return Math.round(getSub()*CFG.tax);
+}
+
+/* ==================== NOTES ==================== */
+function openNote(i){
+  noteIdx=i;
+  $("noteInp").value=cart[i].note||"";
+  $("noteModal").classList.remove("hidden");
+}
+
+function closeNote(){
+  noteIdx=null;
+  $("noteModal").classList.add("hidden");
+}
+
+function quickNote(t){ $("noteInp").value=t; }
+
+function saveNote(){
+  if(noteIdx!==null) cart[noteIdx].note=$("noteInp").value.trim()||null;
+  closeNote();
+  renderCartList();
+}
+
+/* ==================== ORDER TYPE ==================== */
+function setType(t){
+  orderType=t;
+  $("otDine").className = "px-4 py-2 text-xs rounded-xl font-bold "+(t==="dine"?"bg-gray-900 text-white":"border border-gray-300 text-gray-600");
+  $("otTA").className   = "px-4 py-2 text-xs rounded-xl font-bold "+(t==="ta"?"bg-gray-900 text-white":"border border-gray-300 text-gray-600");
+}
+
+/* ==================== PAYMENT ==================== */
+function openPay(){
+  closeCart();
+  const grand = getGrand();
+  $("payGrand").textContent = "Rp "+rp(grand);
+  $("payModal").classList.remove("hidden");
+  setPayMethod("cash");
+  $("cashInp").value="";
+  $("kembaliRow").classList.add("hidden");
+  buildQuickCash(grand);
+}
+
+function closePay(){
+  $("payModal").classList.add("hidden");
+}
+
+function setPayMethod(m){
+  payMethod=m;
+  ["cash","transfer","qris"].forEach(x=>{
+    const btn = document.getElementById("pm"+x.charAt(0).toUpperCase()+x.slice(1));
+    const active = x===m;
+    btn.className = active
+      ? "p-3 rounded-2xl border-2 border-gray-900 bg-gray-100 text-center"
+      : "p-3 rounded-2xl border-2 border-gray-200 bg-white text-center";
+    btn.querySelector(".text-xs").className = active
+      ? "text-xs font-bold mt-1 text-gray-900"
+      : "text-xs mt-1 text-gray-400";
+  });
+  $("cashArea").classList.toggle("hidden", m!=="cash");
+}
+
+function buildQuickCash(total){
+  const noms=[5000,10000,20000,50000,100000,200000];
+  const opts=noms.filter(n=>n>=total).slice(0,3);
+  $("quickCash").innerHTML=
+    opts.map(n=>`
+      <button onclick="setCash(${n})" class="py-2 bg-gray-100 rounded-xl text-xs font-semibold">
+        Rp ${rp(n)}
+      </button>
+    `).join("")+
+    `<button onclick="setCash(${total})" class="py-2 bg-gray-900 text-white rounded-xl text-xs font-semibold">Pas</button>`;
+}
+
+function setCash(n){
+  $("cashInp").value=n;
+  calcKembali();
+}
+
+function calcKembali(){
+  const t = getGrand();
+  const c = parseFloat($("cashInp").value||0);
+  const k = c-t;
+  if(c>=t){
+    $("kembaliVal").textContent="Rp "+rp(k);
+    $("kembaliRow").classList.remove("hidden");
+  } else {
+    $("kembaliRow").classList.add("hidden");
+  }
+}
+
+function finalPay(){
+  const grand = getGrand();
+  let cashPaid = 0;
+  if(payMethod==="cash"){
+    cashPaid = parseFloat($("cashInp").value||0);
+    if(cashPaid<grand){ alert("Uang kurang Rp "+rp(grand-cashPaid)); return; }
+  }
+
+  const now = new Date();
+  const order = {
+    id      : Date.now(),
+    items   : JSON.parse(JSON.stringify(cart)),
+    sub     : getSub(),
+    tax     : getTax(),
+    total   : grand,
+    method  : payMethod,
+    type    : orderType,
+    table   : orderType==="ta"?"TA":1,
+    cashier : user.name,
+    time    : now,
+    cash    : cashPaid,
+    status  : "pending"
+  };
+
+  allOrders.push(order);
+  stats.omzet += grand;
+  stats.trx++;
+  order.items.forEach(i=>{
+    stats.items += i.qty;
+    salesMap[i.name]=(salesMap[i.name]||0)+i.qty;
+  });
+
+  closePay();
+  if(btChar) printReceipt(order);
+
+  const change=cashPaid-grand;
+  $("succInfo").innerHTML=
+    `Order #${String(order.id).slice(-4)} · ${order.type==="ta"?"Take Away":"Meja "+order.table}<br>`+
+    `Rp ${rp(grand)} · ${order.method.toUpperCase()}`+
+    (payMethod==="cash"&&change>=0?`<br><strong class="text-green-600">Kembalian: Rp ${rp(change)}</strong>`:"");
+
+  $("successModal").classList.remove("hidden");
+  cart=[];
+  updateFAB();
+  renderMenu(MENU);
+}
+
+function closeSuccess(){ $("successModal").classList.add("hidden"); }
+
+/* ==================== KITCHEN ==================== */
+function initKitchen(){
+  $("kitchenScreen").classList.remove("hidden");
+  renderKitchen();
+  setInterval(renderKitchen, 3000);
+}
+
+function renderKitchen(){
+  const pending = allOrders.filter(o=>o.status!=="done");
+  const empty   = $("kitchenEmpty");
+  const list    = $("kitchenOrders");
+  if(!pending.length){ empty.classList.remove("hidden"); list.innerHTML=""; return; }
+  empty.classList.add("hidden");
+  list.innerHTML=pending.map(o=>{
+    const elapsed=Math.max(0,Math.floor((Date.now()-new Date(o.time))/60000));
+    const urgent=elapsed>=5;
+    return `
+      <div class="bg-gray-800 rounded-2xl p-4 ${urgent?"border-2 border-red-500":""}">
+        <div class="flex justify-between items-center mb-3">
+          <div class="brand text-3xl">#${String(o.id).slice(-4)}</div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-1 ${o.type==="ta"?"bg-blue-900 text-blue-300":"bg-gray-700 text-gray-300"} rounded text-xs">
+              ${o.type==="ta"?"Take Away":"Meja "+o.table}
+            </span>
+            <span class="${urgent?"text-red-400 font-bold":"text-gray-500"} text-xs">
+              ${elapsed>0?elapsed+"m":"baru"}
+            </span>
+          </div>
+        </div>
+        ${o.items.map(i=>`
+          <div class="py-2 border-b border-gray-700 flex justify-between items-start last:border-0">
+            <div>
+              <div class="font-medium text-base">${i.name}</div>
+              ${i.note?`<div class="text-yellow-400 text-sm mt-0.5">• ${i.note}</div>`:""}
+            </div>
+            <div class="font-bold text-2xl ml-4">${i.qty}×</div>
+          </div>
+        `).join("")}
+        <button onclick="doneOrder(${o.id})" class="w-full mt-3 py-2.5 bg-green-600 text-white rounded-xl font-semibold">
+          ✅ Selesai
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+function doneOrder(id){
+  const o=allOrders.find(x=>x.id===id);
+  if(o) o.status="done";
+  renderKitchen();
+}
+
+/* ==================== DASHBOARD ==================== */
+function initDashboard(){
+  $("dashboardScreen").classList.remove("hidden");
+  refreshDash();
+  setInterval(refreshDash, 5000);
+}
+
+function refreshDash(){
+  const avg = stats.trx>0?Math.floor(stats.omzet/stats.trx):0;
+  $("dOmzet").textContent = rp(stats.omzet);
+  $("dTrx").textContent   = stats.trx;
+  $("dAvg").textContent   = rp(avg);
+  $("dItems").textContent = stats.items;
+
+  const sorted=Object.entries(salesMap).sort((a,b)=>b[1]-a[1]);
+  $("dTop").innerHTML=sorted.length
+    ? sorted.slice(0,5).map(([n,q],i)=>`
+        <div class="flex justify-between py-2 border-b last:border-0 text-gray-700">
+          <span>${["🥇","🥈","🥉","4️⃣","5️⃣"][i]} ${n}</span>
+          <span class="font-bold">${q}x</span>
+        </div>`).join("")
+    : "<div class='text-gray-400'>Belum ada data</div>";
+
+  $("dHist").innerHTML=allOrders.length
+    ? [...allOrders].reverse().slice(0,10).map(o=>`
+        <div class="flex justify-between py-2 border-b last:border-0">
+          <span class="text-gray-500 text-xs">#${String(o.id).slice(-4)} · ${o.type==="ta"?"TA":"M"+o.table} · ${fmtTime(o.time)}</span>
+          <span class="font-bold text-sm">Rp ${rp(o.total)}</span>
+        </div>`).join("")
+    : "<div class='text-gray-400 text-sm'>Belum ada transaksi</div>";
+}
+
+/* ==================== BLUETOOTH ==================== */
+async function connectPrinter(){
+  if(!navigator.bluetooth){ alert("Gunakan Chrome Android"); return; }
+  try{
+    const dev=await navigator.bluetooth.requestDevice({
+      filters:[{services:["000018f0-0000-1000-8000-00805f9b34fb"]}],
+      optionalServices:["000018f0-0000-1000-8000-00805f9b34fb"]
+    });
+    const srv=await dev.gatt.connect();
+    const svc=await srv.getPrimaryService("000018f0-0000-1000-8000-00805f9b34fb");
+    btChar=await svc.getCharacteristic("00002af1-0000-1000-8000-00805f9b34fb");
+    $("printerBtn").textContent="✅ Printer";
+    $("printerBtn").className="px-3 py-1.5 text-xs bg-green-800 text-green-300 rounded-lg";
+  }catch(e){ alert("Gagal: "+e.message); }
+}
+
+async function btSend(data){
+  const chunk=300;
+  for(let i=0;i<data.length;i+=chunk)
+    await btChar.writeValue(data.slice(i,i+chunk));
+}
+
+/* ==================== RECEIPT ==================== */
+async function printReceipt(o){
+  if(!btChar) return;
+  const E="\x1B";
+  const INIT  = E+"\x40";
+  const C     = E+"\x61\x01";
+  const L     = E+"\x61\x00";
+  const BO    = E+"\x45\x01";
+  const BF    = E+"\x45\x00";
+  const LINE  = "================================\n";
+  const DASH  = "--------------------------------\n";
+
+  let t = INIT;
+
+  t += C+BO+CFG.name+"\n"+BF;
+  t += CFG.addr1+"\n";
+  t += CFG.addr2+"\n";
+  t += CFG.city+"\n";
+  t += LINE;
+  t += BO+(o.type==="ta"?"TAKE AWAY":"DINE IN · MEJA "+o.table)+"\n"+BF;
+  t += DASH;
+  t += L;
+  t += "Order : #"+String(o.id).slice(-4)+"\n";
+  t += "Tanggal: "+fmtDate(o.time)+" "+fmtTime(o.time)+"\n";
+  t += "Kasir  : "+o.cashier+"\n";
+  t += "Bayar  : "+o.method.toUpperCase()+"\n";
+  t += DASH;
+
+  o.items.forEach(i=>{
+    t += i.name+"\n";
+    if(i.note) t += "   *("+i.note+")\n";
+    const left  = " "+i.qty+"x Rp "+rp(i.price);
+    const right = "Rp "+rp(i.qty*i.price);
+    const pad   = Math.max(1, 32-left.length-right.length);
+    t += left+" ".repeat(pad)+right+"\n";
+  });
+
+  t += DASH;
+  t += "Subtotal".padEnd(20)+"Rp "+rp(o.sub)+"\n";
+  t += "PPN 11%".padEnd(20)+"Rp "+rp(o.tax)+"\n";
+  t += DASH;
+  t += BO+"TOTAL".padEnd(20)+"Rp "+rp(o.total)+"\n"+BF;
+
+  if(o.method==="cash"){
+    const chg=o.cash-o.total;
+    t += "Tunai".padEnd(20)+"Rp "+rp(o.cash)+"\n";
+    t += BO+"Kembalian".padEnd(20)+"Rp "+rp(chg)+"\n"+BF;
+  }
+
+  const est=new Date(new Date(o.time).getTime()+CFG.est*60000);
+  t += DASH;
+  t += "Estimasi Selesai: "+fmtTime(est)+"\n";
+  t += LINE;
+
+  await btSend(new TextEncoder().encode(t));
+
+  const f=C+"\nTerima kasih!\n"+CFG.ig+"\n"+CFG.wa+"\n"+"\""+CFG.slogan+"\"\n\n\n";
+  await btSend(new TextEncoder().encode(f));
+}
+</script>
+</body>
+</html>
