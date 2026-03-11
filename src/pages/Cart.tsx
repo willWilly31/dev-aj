@@ -136,6 +136,15 @@ function ReceiptPreview({ onClose }: { onClose: () => void }) {
     window.print();
   };
 
+  const handleRawBT = () => {
+    // RawBT intercepts window.print() or intent URL
+    // First try intent for RawBT app
+    const intentUrl = `intent://print#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end`;
+    window.location.href = intentUrl;
+    // Fallback to window.print after short delay
+    setTimeout(() => window.print(), 500);
+  };
+
   const handleNewOrder = () => {
     clearCart();
     onClose();
@@ -146,43 +155,43 @@ function ReceiptPreview({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-card w-full max-w-sm rounded-2xl shadow-lg overflow-hidden">
-        {/* Receipt */}
-        <div className="p-6 text-center border-b border-dashed border-border print:border-black">
-          <h2 className="font-display text-2xl font-bold text-foreground">WARKOP AJ</h2>
-          <p className="text-xs text-muted-foreground mt-1">Kopi & Makanan Khas Medan</p>
-          <div className="my-3 border-t border-dashed border-border" />
+        {/* Thermal Receipt - ID used by print CSS */}
+        <div id="thermal-receipt" className="p-6 text-center border-b border-dashed border-border" style={{ fontFamily: "'Courier New', monospace" }}>
+          <div className="receipt-title font-bold text-xl">WARKOP AJ</div>
+          <div className="text-[10px] mt-0.5">Kopi & Makanan Khas Medan</div>
+          <div className="receipt-divider my-2 border-t border-dashed border-border" />
           
-          <div className="text-left text-sm space-y-1">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Order</span>
+          <div className="text-left text-xs space-y-0.5">
+            <div className="receipt-row flex justify-between">
+              <span>Order</span>
               <span className="font-bold">#{orderId}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Tipe</span>
-              <span className="font-semibold">{orderType === 'dine' ? 'Dine In' : 'Take Away'}</span>
+            <div className="receipt-row flex justify-between">
+              <span>Tipe</span>
+              <span className="font-bold">{orderType === 'dine' ? 'Dine In' : 'Take Away'}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Bayar</span>
-              <span className="font-semibold uppercase">{paymentMethod}</span>
+            <div className="receipt-row flex justify-between">
+              <span>Bayar</span>
+              <span className="font-bold uppercase">{paymentMethod}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Tanggal</span>
+            <div className="receipt-row flex justify-between">
+              <span>Tgl</span>
               <span>{now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Waktu</span>
+            <div className="receipt-row flex justify-between">
+              <span>Jam</span>
               <span>{now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
 
-          <div className="my-3 border-t border-dashed border-border" />
+          <div className="receipt-divider my-2 border-t border-dashed border-border" />
 
-          <div className="text-left text-sm space-y-2">
+          <div className="text-left text-xs space-y-1">
             {items.map((item) => (
               <div key={item.id}>
-                <div className="font-medium">{item.name}</div>
-                {item.note && <div className="text-xs text-blue-600">*({item.note})</div>}
-                <div className="flex justify-between text-muted-foreground">
+                <div className="font-bold">{item.name}</div>
+                {item.note && <div className="text-[9px]">*({item.note})</div>}
+                <div className="receipt-row flex justify-between">
                   <span>{item.quantity}x {formatPrice(item.price)}</span>
                   <span>{formatPrice(item.price * item.quantity)}</span>
                 </div>
@@ -190,36 +199,43 @@ function ReceiptPreview({ onClose }: { onClose: () => void }) {
             ))}
           </div>
 
-          <div className="my-3 border-t border-dashed border-border" />
+          <div className="receipt-divider my-2 border-t border-dashed border-border" />
 
-          <div className="text-left text-sm space-y-1">
-            <div className="flex justify-between text-muted-foreground">
+          <div className="text-left text-xs space-y-0.5">
+            <div className="receipt-row flex justify-between">
               <span>Subtotal</span>
               <span>{formatPrice(getTotalPrice())}</span>
             </div>
-            <div className="flex justify-between text-muted-foreground">
+            <div className="receipt-row flex justify-between">
               <span>PPN 11%</span>
               <span>{formatPrice(getTax())}</span>
             </div>
-            <div className="flex justify-between font-bold text-lg text-foreground pt-2 border-t border-border">
+            <div className="receipt-divider my-1 border-t border-dashed border-border" />
+            <div className="receipt-row receipt-total flex justify-between font-bold text-sm">
               <span>TOTAL</span>
               <span>{formatPrice(getGrandTotal())}</span>
             </div>
           </div>
 
-          <div className="my-3 border-t border-dashed border-border" />
-          <p className="text-xs text-muted-foreground">Terima kasih!</p>
-          <p className="text-xs text-muted-foreground">IG: @warkopaj</p>
-          <p className="text-xs text-muted-foreground italic mt-1">"Ngopi Santai, Rasa Istimewa!"</p>
+          <div className="receipt-divider my-2 border-t border-dashed border-border" />
+          <div className="text-[9px] text-center space-y-0.5">
+            <p>Terima kasih!</p>
+            <p>IG: @warkopaj</p>
+            <p className="italic">"Ngopi Santai, Rasa Istimewa!"</p>
+          </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions - hidden when printing */}
         <div className="p-4 space-y-2 print:hidden">
-          <Button onClick={handlePrint} variant="outline" className="w-full gap-2">
+          <Button onClick={handleRawBT} className="w-full gap-2 font-bold">
             <Printer className="h-4 w-4" />
-            Cetak Struk
+            🖨️ Cetak via RawBT
           </Button>
-          <Button onClick={handleNewOrder} className="w-full">
+          <Button onClick={handlePrint} variant="outline" className="w-full gap-2 text-xs">
+            <Printer className="h-4 w-4" />
+            Print Biasa
+          </Button>
+          <Button onClick={handleNewOrder} variant="secondary" className="w-full">
             Pesanan Baru
           </Button>
         </div>
