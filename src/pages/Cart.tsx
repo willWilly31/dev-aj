@@ -127,23 +127,52 @@ function CartItemCard({ item, onOpenNote }: { item: CartItem; onOpenNote: (item:
   );
 }
 
-function ReceiptPreview({ onClose }: { onClose: () => void }) {
+function ReceiptPreview({ onClose, cashPaid }: { onClose: () => void; cashPaid: number }) {
   const { items, orderType, paymentMethod, getTotalPrice, getTax, getGrandTotal, clearCart } = useCartStore();
   const navigate = useNavigate();
   const orderId = String(Date.now()).slice(-4);
   const now = new Date();
+  const [printing, setPrinting] = useState(false);
+  const [printerConnected, setPrinterConnected] = useState(isPrinterConnected());
+
+  const handleConnectPrinter = async () => {
+    try {
+      await connectPrinter();
+      setPrinterConnected(true);
+      toast.success(`✅ Printer ${getPrinterName()} terhubung!`);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const handleBluetoothPrint = async () => {
+    if (!isPrinterConnected()) {
+      toast.error("Hubungkan printer dulu!");
+      return;
+    }
+    setPrinting(true);
+    try {
+      const receiptData: ReceiptData = {
+        orderId,
+        orderType,
+        paymentMethod,
+        items: items.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, note: i.note })),
+        subtotal: getTotalPrice(),
+        tax: getTax(),
+        total: getGrandTotal(),
+        cashPaid: paymentMethod === 'cash' ? cashPaid : undefined,
+      };
+      await btPrintReceipt(receiptData);
+      toast.success("🖨️ Struk berhasil dicetak!");
+    } catch (e: any) {
+      toast.error("Gagal cetak: " + e.message);
+    } finally {
+      setPrinting(false);
+    }
+  };
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const handleRawBT = () => {
-    // RawBT intercepts window.print() or intent URL
-    // First try intent for RawBT app
-    const intentUrl = `intent://print#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end`;
-    window.location.href = intentUrl;
-    // Fallback to window.print after short delay
-    setTimeout(() => window.print(), 500);
   };
 
   const handleNewOrder = () => {
@@ -156,7 +185,7 @@ function ReceiptPreview({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-card w-full max-w-sm rounded-2xl shadow-lg overflow-hidden">
-        {/* Thermal Receipt - ID used by print CSS */}
+        {/* Thermal Receipt */}
         <div id="thermal-receipt" className="p-6 text-center border-b border-dashed border-border" style={{ fontFamily: "'Courier New', monospace" }}>
           <div className="receipt-title font-bold text-xl">WARKOP AJ</div>
           <div className="text-[10px] mt-0.5">Kopi & Makanan Khas Medan</div>
@@ -216,6 +245,18 @@ function ReceiptPreview({ onClose }: { onClose: () => void }) {
               <span>TOTAL</span>
               <span>{formatPrice(getGrandTotal())}</span>
             </div>
+            {paymentMethod === 'cash' && cashPaid > 0 && (
+              <>
+                <div className="receipt-row flex justify-between">
+                  <span>Tunai</span>
+                  <span>{formatPrice(cashPaid)}</span>
+                </div>
+                <div className="receipt-row flex justify-between font-bold">
+                  <span>Kembalian</span>
+                  <span>{formatPrice(cashPaid - getGrandTotal())}</span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="receipt-divider my-2 border-t border-dashed border-border" />
@@ -226,15 +267,22 @@ function ReceiptPreview({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Actions - hidden when printing */}
+        {/* Actions */}
         <div className="p-4 space-y-2 print:hidden">
-          <Button onClick={handleRawBT} className="w-full gap-2 font-bold">
-            <Printer className="h-4 w-4" />
-            🖨️ Cetak via RawBT
-          </Button>
+          {!printerConnected ? (
+            <Button onClick={handleConnectPrinter} variant="outline" className="w-full gap-2">
+              <Bluetooth className="h-4 w-4" />
+              🔗 Hubungkan Printer Bluetooth
+            </Button>
+          ) : (
+            <Button onClick={handleBluetoothPrint} disabled={printing} className="w-full gap-2 font-bold">
+              <Printer className="h-4 w-4" />
+              {printing ? '⏳ Mencetak...' : `🖨️ Cetak (${getPrinterName()})`}
+            </Button>
+          )}
           <Button onClick={handlePrint} variant="outline" className="w-full gap-2 text-xs">
             <Printer className="h-4 w-4" />
-            Print Biasa
+            Print Browser
           </Button>
           <Button onClick={handleNewOrder} variant="secondary" className="w-full">
             Pesanan Baru
