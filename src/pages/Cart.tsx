@@ -343,7 +343,7 @@ const Cart = () => {
   const quickCashAmounts = [5000, 10000, 20000, 50000, 100000, 200000].filter(n => n >= grandTotal).slice(0, 3);
 
   if (showReceipt) {
-    return <ReceiptPreview onClose={() => setShowReceipt(false)} />;
+    return <ReceiptPreview onClose={() => setShowReceipt(false)} cashPaid={parseFloat(cashAmount) || 0} />;
   }
 
   return (
