@@ -149,7 +149,7 @@ const POS = () => {
         >
           <Bluetooth className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{printerConnected ? getPrinterName() : 'Printer'}</span>
-          <span className={cn('h-2 w-2 rounded-full', printerConnected ? 'bg-green-500' : 'bg-muted-foreground/30')} />
+          <span className={cn('h-2 w-2 rounded-full', printerConnected ? 'bg-primary' : 'bg-muted-foreground/30')} />
         </Button>
       </header>
 
