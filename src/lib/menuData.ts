@@ -238,14 +238,6 @@ export const menuItems: MenuItem[] = [
     category: 'lainnya',
     image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&q=80',
   },
-  {
-    id: 'pisang-goreng',
-    name: 'Pisang Goreng',
-    description: 'Pisang goreng crispy dengan topping keju atau coklat',
-    price: 8000,
-    category: 'lainnya',
-    image: 'https://images.unsplash.com/photo-1600326145359-3a44909d1a39?w=400&q=80',
-  },
 ];
 
 export const formatPrice = (price: number): string => {
