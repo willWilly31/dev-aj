@@ -230,14 +230,6 @@ export const menuItems: MenuItem[] = [
     category: 'lainnya',
     image: 'https://wnl2osjferkgajci.public.blob.vercel-storage.com/bihun%20goreng.png',
   },
-  {
-    id: 'roti-bakar',
-    name: 'Roti Bakar',
-    description: 'Roti bakar dengan selai coklat dan keju',
-    price: 12000,
-    category: 'lainnya',
-    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&q=80',
-  },
 ];
 
 export const formatPrice = (price: number): string => {
