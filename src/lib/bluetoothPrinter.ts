@@ -4,7 +4,8 @@
 const BT_SERVICE = "000018f0-0000-1000-8000-00805f9b34fb";
 const BT_CHARACTERISTIC = "00002af1-0000-1000-8000-00805f9b34fb";
 
-let btChar: BluetoothRemoteGATTCharacteristic | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let btChar: any = null;
 let btDeviceName: string | null = null;
 
 export function isPrinterConnected(): boolean {
@@ -16,11 +17,12 @@ export function getPrinterName(): string | null {
 }
 
 export async function connectPrinter(): Promise<boolean> {
-  if (!navigator.bluetooth) {
+  const nav = navigator as any;
+  if (!nav.bluetooth) {
     throw new Error("Bluetooth tidak tersedia. Gunakan Chrome di Android.");
   }
   try {
-    const device = await navigator.bluetooth.requestDevice({
+    const device = await nav.bluetooth.requestDevice({
       filters: [{ services: [BT_SERVICE] }],
       optionalServices: [BT_SERVICE],
     });
