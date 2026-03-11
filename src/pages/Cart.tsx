@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowLeft, Minus, Plus, Trash2, MessageCircle, StickyNote, Printer } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Minus, Plus, Trash2, MessageCircle, StickyNote, Printer, Bluetooth } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore, CartItem, OrderType, PaymentMethod } from '@/lib/cartStore';
 import { formatPrice } from '@/lib/menuData';
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { connectPrinter, isPrinterConnected, getPrinterName, printReceipt as btPrintReceipt, ReceiptData } from '@/lib/bluetoothPrinter';
 
 const quickNotes = [
   'Tanpa Gula', 'Gula Sedikit', 'Es Sedikit', 'Es Banyak',
